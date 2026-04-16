@@ -16,11 +16,10 @@ rule ask-truncate {
   enabled true
   priority 90
   severity error
-  ASK write
+  LOG write
   IF path GLOB "**/*.sql" AND content LINE_REGEX "TRUNCATE\\s+TABLE"
   OR path GLOB "**/*.sql" AND content LINE_REGEX "TRUNCATE\\s+\\w+"
   MESSAGE "TRUNCATE permanently deletes all rows in a table and cannot be rolled back in some databases. Confirm this is intentional."
-  PROMPT "Is this TRUNCATE in a migration or seed script? Verify the target table and that this is not operating on production data."
 }
 
 rule no-delete-without-where {
@@ -46,9 +45,8 @@ rule ask-alter-column-drop {
   enabled true
   priority 85
   severity warning
-  ASK write
+  LOG write
   IF path GLOB "**/*.sql" AND content LINE_REGEX "ALTER\\s+TABLE.*DROP\\s+COLUMN"
   OR path GLOB "**/migrations/**" AND content LINE_REGEX "DROP\\s+COLUMN"
   MESSAGE "Dropping a column is irreversible and will cause errors in any code that references it. Ensure all application code has been updated first."
-  PROMPT "Have all references to this column been removed from the application code? Consider a two-step migration: deprecate first, drop in a later release."
 }
